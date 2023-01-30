@@ -1,18 +1,141 @@
 // ./src/App.js
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Fuse from "fuse.js";
 
-const bookTitles = [
-  "Mercy's Birds",
-  "The Last of the Mohicans",
-  "Harry Potter and the Sorcerer's Stone",
-  "The Hobbit",
-  "The Lord of the Rings",
-  "The Fellowship of the Ring",
-  "The Two Towers",
-  "The Sandman",
-  "The Return of the King",
+const books = [
+  {
+    title: "Mercy's Birds",
+    author: "Linda Holeman",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "romance",
+      },
+    ],
+  },
+  {
+    title: "The Last of the Mohicans",
+    author: "James Fenimore Cooper",
+    genre: "Historical Fiction",
+    tags: [
+      {
+        name: "historical",
+      },
+      {
+        name: "adventure",
+      },
+    ],
+  },
+  {
+    title: "Harry Potter and the Sorcerer's Stone",
+    author: "J.K. Rowling",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "magic",
+      },
+    ],
+  },
+  {
+    title: "The Hobbit",
+    author: "J.R.R. Tolkien",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "adventure",
+      },
+    ],
+  },
+  {
+    title: "The Lord of the Rings",
+    author: "J.R.R. Tolkien",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "adventure",
+      },
+      {
+        name: "epic",
+      },
+    ],
+  },
+  {
+    title: "The Fellowship of the Ring",
+    author: "J.R.R. Tolkien",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "adventure",
+      },
+      {
+        name: "epic",
+      },
+    ],
+  },
+  {
+    title: "The Two Towers",
+    author: "J.R.R. Tolkien",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "adventure",
+      },
+      {
+        name: "epic",
+      },
+    ],
+  },
+  {
+    title: "The Sandman",
+    author: "Neil Gaiman",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "graphic novel",
+      },
+      {
+        name: "horror",
+      },
+    ],
+  },
+  {
+    title: "The Return of the King",
+    author: "J.R.R. Tolkien",
+    genre: "Fantasy",
+    tags: [
+      {
+        name: "fantasy",
+      },
+      {
+        name: "adventure",
+      },
+      {
+        name: "epic",
+      },
+    ],
+  },
 ];
 
 function App() {
@@ -22,10 +145,16 @@ function App() {
   // options object for fuse.js
   const options = {
     includeScore: true,
+    keys: [
+      { name: "title", weight: 1 },
+      { name: "author", weight: 2 },
+      { name: "genre", weight: 3 },
+      { name: "tags.name", weight: 4 },
+    ],
   };
 
   // initialize fuse with list and options
-  const fuse = new Fuse(bookTitles, options);
+  const fuse = new Fuse(books, options);
 
   // search based on search term entered
   const searchResults = fuse.search(searchTerm);
@@ -49,8 +178,9 @@ function App() {
 
         <ul className="results">
           {searchResults.map((result) => (
-            <li className="result my-4">
-              <h2>{result.item}</h2>
+            <li key={result.refIndex} className="result my-4">
+              <h2>{result.item.title}</h2>
+              <p> {} </p>
               <span>Score: {result.score}</span>
             </li>
           ))}
