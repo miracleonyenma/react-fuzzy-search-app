@@ -21,6 +21,7 @@ const Search = ({ list, updateResults }) => {
   // search based on search term entered
   const searchResults = useMemo(() => {
     return fuse.search(searchTerm);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   const handleChange = (event) => {

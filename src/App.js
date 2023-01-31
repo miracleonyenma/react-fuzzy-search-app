@@ -82,9 +82,9 @@ function App() {
         </div>
       </header>
 
-      <ul className="results flex glex-col gap-6 my-8">
+      <ul className="results flex flex-col gap-6 my-8">
         {results.length > 0 ? (
-          results.slice(0, 2).map((post) => (
+          results.map((post) => (
             <li key={post.item.id}>
               <h2 className="text-2xl">
                 {highlightText(
