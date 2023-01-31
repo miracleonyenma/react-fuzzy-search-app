@@ -1,191 +1,116 @@
 // ./src/App.js
 
-import { useState } from "react";
-import Fuse from "fuse.js";
+import { useEffect, useState } from "react";
+import Search from "./components/Search";
 
-const books = [
-  {
-    title: "Mercy's Birds",
-    author: "Linda Holeman",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "romance",
-      },
-    ],
-  },
-  {
-    title: "The Last of the Mohicans",
-    author: "James Fenimore Cooper",
-    genre: "Historical Fiction",
-    tags: [
-      {
-        name: "historical",
-      },
-      {
-        name: "adventure",
-      },
-    ],
-  },
-  {
-    title: "Harry Potter and the Sorcerer's Stone",
-    author: "J.K. Rowling",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "magic",
-      },
-    ],
-  },
-  {
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "adventure",
-      },
-    ],
-  },
-  {
-    title: "The Lord of the Rings",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "adventure",
-      },
-      {
-        name: "epic",
-      },
-    ],
-  },
-  {
-    title: "The Fellowship of the Ring",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "adventure",
-      },
-      {
-        name: "epic",
-      },
-    ],
-  },
-  {
-    title: "The Two Towers",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "adventure",
-      },
-      {
-        name: "epic",
-      },
-    ],
-  },
-  {
-    title: "The Sandman",
-    author: "Neil Gaiman",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "graphic novel",
-      },
-      {
-        name: "horror",
-      },
-    ],
-  },
-  {
-    title: "The Return of the King",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    tags: [
-      {
-        name: "fantasy",
-      },
-      {
-        name: "adventure",
-      },
-      {
-        name: "epic",
-      },
-    ],
-  },
-];
+// function to fetch posts
+const fetchPosts = async () => {
+  try {
+    const res = await fetch("https://dummyjson.com/posts");
+    const data = await res.json();
+    return data.posts;
+  } catch (error) {
+    console.log({ error });
+    return error;
+  }
+};
 
 function App() {
-  // search term
-  const [searchTerm, setSearchTerm] = useState(" ");
+  // posts state
+  const [posts, setPosts] = useState([]);
 
-  // options object for fuse.js
-  const options = {
-    includeScore: true,
-    keys: [
-      { name: "title", weight: 1 },
-      { name: "author", weight: 2 },
-      { name: "genre", weight: 3 },
-      { name: "tags.name", weight: 4 },
-    ],
+  // results state
+  const [results, setResults] = useState([]);
+
+  // fetch posts
+  const getPosts = async () => {
+    const posts = await fetchPosts();
+    console.log({ posts });
+    setPosts(posts);
   };
 
-  // initialize fuse with list and options
-  const fuse = new Fuse(books, options);
+  // update results from search component
+  const handleUpdateResults = (results) => {
+    // console.log({ results });
+    setResults(results);
+  };
 
-  // search based on search term entered
-  const searchResults = fuse.search(searchTerm);
+  // fetch posts on mount
+  useEffect(() => {
+    getPosts();
+  }, []);
 
-  // function to update search term from input element
-  const handleSearch = ({ currentTarget }) => {
-    const { value } = currentTarget;
-    setSearchTerm(value);
+  const highlightText = (text, matches) => {
+    console.log({ text, matches });
+    // matches is an array of arrays
+    // each array contains the start and end index of the match
+    // e.g. [[0, 3], [5, 8]]
+    // we need to split the text into an array of spans
+    // where each span contains the text and a class
+    // to highlight the text
+    // e.g. [<span className="highlight">foo</span>, " ", <span className="highlight">bar</span>]
+    // we can then render the array of spans
+    // e.g. <span className="highlight">foo</span> <span className="highlight">bar</span>
+    const spans = [];
+    let lastIndex = 0;
+    matches?.forEach((match) => {
+      // add the text before the match
+      spans.push(text.slice(lastIndex, match[0]));
+      // add the match
+      spans.push(
+        <span
+          key={match}
+          className="highlight bg-sky-500 text-sky-50 px-1 rounded"
+        >
+          {text.slice(match[0], match[1] + 1)}
+        </span>
+      );
+      // update the last index
+      lastIndex = match[1] + 1;
+    });
+    // add the text after the last match
+    spans.push(text.slice(lastIndex));
+    return spans;
   };
 
   return (
-    <main>
-      <div className="p-4">
-        <input
-          value={searchTerm}
-          onChange={handleSearch}
-          type="text"
-          placeholder="Search"
-          className="bg-slate-200 p-2 rounded"
-        />
+    <main className="p-4 max-w-4xl m-auto">
+      <header>
+        <div className="wrapper">
+          <h1 className="text-4xl mb-4">Posts</h1>
+          <Search list={posts} updateResults={handleUpdateResults} />
+        </div>
+      </header>
 
-        <ul className="results">
-          {searchResults.map((result) => (
-            <li key={result.refIndex} className="result my-4">
-              <h2>{result.item.title}</h2>
-              <p> {} </p>
-              <span>Score: {result.score}</span>
+      <ul className="results flex glex-col gap-6 my-8">
+        {results.length > 0 ? (
+          results.slice(0, 2).map((post) => (
+            <li key={post.item.id}>
+              <h2 className="text-2xl">
+                {highlightText(
+                  post.item.title,
+                  post.matches.find((match) => match.key === "title")?.indices
+                )}
+              </h2>
+              <p>{post.item.body}</p>
+              <ul className="tags flex gap-2">
+                {post.item.tags.map((tag) => (
+                  <li key={tag} className="tag bg-slate-50 p-2">
+                    {highlightText(
+                      tag,
+                      post.matches.find(
+                        (match) => match.key === "tags" && match.value === tag
+                      )?.indices
+                    )}
+                  </li>
+                ))}
+              </ul>
             </li>
-          ))}
-        </ul>
-      </div>
+          ))
+        ) : (
+          <li>No results</li>
+        )}
+      </ul>
     </main>
   );
 }
